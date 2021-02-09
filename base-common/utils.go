@@ -6,23 +6,29 @@ import (
 	"os"
 )
 
-type dbConfiguration struct {
-	Server, MongoDBHost, DBUser, DBPwd, Database string
+const configPath = "../etc/config.json"
+
+type AppConfig struct {
+	Server      string
+	MongoDBHost string
+	DBUser      string
+	DBPwd       string
+	Database    string
 }
+var AppConf *AppConfig
 
 func initConfig() {
-	loadConfig()
+	configLoad()
 }
 
-func loadConfig() {
-	file, err := os.Open("../etc/config.json")
+func configLoad() {
+	file, err := os.Open(configPath)
 	defer file.Close()
 	if err != nil {
 		log.Fatalf("[loadConfig]: %s\n", err)
 	}
 	decoder := json.NewDecoder(file)
-	dbConfig := dbConfiguration{}
-	err = decoder.Decode(&dbConfig)
+	err = decoder.Decode(&AppConf)
 	if err != nil {
 		log.Fatalf("[loadConfig]: %s\n", err)
 	}
