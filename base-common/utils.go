@@ -26,7 +26,6 @@ type (
 		Database    string
 	}
 )
-
 var AppConf *AppConfig
 
 func DisplayAppError(w http.ResponseWriter, handleError error, message string, code int)  {
@@ -43,7 +42,7 @@ func DisplayAppError(w http.ResponseWriter, handleError error, message string, c
 	}
 }
 
-func configLoad() {
+func loadAppConfig() {
 	file, err := os.Open(configPath)
 	defer file.Close()
 	if err != nil {
@@ -57,6 +56,6 @@ func configLoad() {
 }
 
 func initConfig() {
-	configLoad()
+	loadAppConfig()
 }
 
