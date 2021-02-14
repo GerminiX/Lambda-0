@@ -1,9 +1,11 @@
 package base_common
 
 import (
-	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/dgrijalva/jwt-go"
+	"github.com/dgrijalva/jwt-go/request"
 	"io/ioutil"
 	"log"
+	"net/http"
 	"time"
 )
 
@@ -31,17 +33,67 @@ func initKeys()  {
 }
 
 func GenerateToken(name, role string) (string, error) {
-	t := jwt.New(jwt.GetSigningMethod("RS256"))
-	t.Claims["iss"]  = "admin"
-	t.Claims["UserInfo"] = struct {
+	Claims :=  jwt.MapClaims{}
+	Claims["iss"] = "admin"
+	Claims["UserInfo"] = struct {
 		Name string
 		Role string
 	}{name, role}
 
-	t.Claims["exp"] = time.Now().Add(time.Hour *24).Unix()
+	Claims["exp"] = time.Now().Add(time.Minute *20).Unix()
+	t := jwt.NewWithClaims(jwt.GetSigningMethod("RS256"), Claims)
 	tokenString, err := t.SignedString(signKey)
 	if err != nil {
 		return "", err
 	}
 	return tokenString, nil
+}
+
+func Authorize(w http.ResponseWriter, r *http.Request, next http.HandlerFunc)  {
+	token, err := request.ParseFromRequest(r, request.OAuth2Extractor, func(token *jwt.Token) (interface{}, error) {
+		return verifyKey, nil
+	})
+
+	if err != nil {
+		switch err.(type) {
+
+		case *jwt.ValidationError:
+			vErr := err.(*jwt.ValidationError)
+
+			switch vErr.Errors {
+			case jwt.ValidationErrorExpired:
+				DisplayAppError(w,
+					err,
+					"Access Token is expired, get a new Token",
+					401,
+				)
+				return
+
+			default:
+				DisplayAppError(w,
+					err,
+					"Error while parsing the Access Token",
+					500,
+				)
+				return
+			}
+
+		default:
+			DisplayAppError(w,
+				err,
+				"Error while parsing the Access Token",
+				500,
+			)
+			return
+		}
+	}
+	if token.Valid{
+		next(w,r)
+	}else {
+		DisplayAppError(w,
+			err,
+			"Invalid Access Token",
+			401,
+		)
+	}
 }
