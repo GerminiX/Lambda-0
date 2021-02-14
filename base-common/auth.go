@@ -68,7 +68,6 @@ func Authorize(w http.ResponseWriter, r *http.Request, next http.HandlerFunc)  {
 					401,
 				)
 				return
-
 			default:
 				DisplayAppError(w,
 					err,
@@ -77,7 +76,6 @@ func Authorize(w http.ResponseWriter, r *http.Request, next http.HandlerFunc)  {
 				)
 				return
 			}
-
 		default:
 			DisplayAppError(w,
 				err,
