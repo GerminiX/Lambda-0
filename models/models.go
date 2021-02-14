@@ -4,6 +4,10 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
+const (
+	UserCollection = "users"
+)
+
 type (
 	User struct {
 		Id           primitive.ObjectID `bson:"_id,omitempty" json:"id"`
