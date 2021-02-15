@@ -2,9 +2,11 @@ package controllers
 
 import (
 	"encoding/json"
+	"github.com/gorilla/mux"
 	base_common "github.com/lambda-0/base-common/base-common"
 	"github.com/lambda-0/base-common/data"
 	"github.com/lambda-0/base-common/models"
+	"gopkg.in/mgo.v2"
 	"net/http"
 )
 
@@ -59,17 +61,50 @@ func GetTasksHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func GetTaskByIdHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	taskId := vars["id"]
+	context := NewContext()
+	defer context.Close()
+	taskCol := context.Collection(models.TasksCollection)
+	repo := &data.TaskRepository{taskCol}
+	task, err := repo.GetById(taskId)
+	if err != nil {
+		if err == mgo.ErrNotFound {
+			w.WriteHeader(http.StatusNoContent)
+			return
+		} else {
+			base_common.DisplayAppError(w,
+				err,
+				"An unexpected error has occurred",
+				500,
+			)
+			return
+		}
+	}
+	if resp, err := json.Marshal(task); err != nil {
+		base_common.DisplayAppError(w,
+			err,
+			"An unexpected error has occurred",
+			500,
+		)
+		return
+	}else {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write(resp)
+	}
+}
+
+func GetTaskByUserHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	
+}
+
 func UpdateTaskHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func GetTaskByIdHandler(w http.ResponseWriter, r *http.Request) {
-
-}
-
-func GetTaskByUserHandler(w http.ResponseWriter, r *http.Request) {
-
-}
 
 func DeleteTaskHandler(w http.ResponseWriter, r *http.Request) {
 
