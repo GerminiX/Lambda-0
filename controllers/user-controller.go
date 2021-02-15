@@ -8,7 +8,7 @@ import (
 	"net/http"
 )
 
-func UserRegister(w http.ResponseWriter, r *http.Request) {
+func UserRegisterHandler(w http.ResponseWriter, r *http.Request) {
 	var dataResource UserResource
 	err := json.NewDecoder(r.Body).Decode(&dataResource)
 	if err != nil {
@@ -22,9 +22,9 @@ func UserRegister(w http.ResponseWriter, r *http.Request) {
 	user := &dataResource.Data
 	context := NewContext()
 	defer context.Close()
-	userCol := context.Collection(models.UserCollection)
+	userCol := context.Collection(models.UsersCollection)
 	userRepo := &data.UserRepository{Col: userCol}
-	userRepo.CreateUser(user)
+	_ = userRepo.CreateUser(user)
 	user.HashPassword = nil
 	if resp, err := json.Marshal(UserResource{Data: *user}); err != nil {
 		base_common.DisplayAppError(w,
@@ -41,7 +41,7 @@ func UserRegister(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func UserLogin(w http.ResponseWriter, r *http.Request) {
+func UserLoginHandler(w http.ResponseWriter, r *http.Request) {
 	var dataResource LoginResource
 	err := json.NewDecoder(r.Body).Decode(&dataResource)
 	if err != nil {
@@ -59,7 +59,7 @@ func UserLogin(w http.ResponseWriter, r *http.Request) {
 	}
 	context := NewContext()
 	defer context.Close()
-	userCol := context.Collection(models.UserCollection)
+	userCol := context.Collection(models.UsersCollection)
 	userRepo := &data.UserRepository{Col: userCol}
 	if user, err := userRepo.Login(loginUser); err != nil {
 		base_common.DisplayAppError(w,
