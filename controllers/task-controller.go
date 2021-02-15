@@ -98,7 +98,24 @@ func GetTaskByIdHandler(w http.ResponseWriter, r *http.Request) {
 
 func GetTaskByUserHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	
+	userId := vars["id"]
+	context := NewContext()
+	defer context.Close()
+	taskCol := context.Collection(models.TasksCollection)
+	repo := &data.TaskRepository{taskCol}
+	tasks := repo.GetByUser(userId)
+	if resp, err := json.Marshal(TasksResource{Data: tasks}); err != nil {
+		base_common.DisplayAppError(w,
+			err,
+			"An unexpected error has occurred",
+			500,
+		)
+		return
+	} else {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write(resp)
+	}
 }
 
 func UpdateTaskHandler(w http.ResponseWriter, r *http.Request) {
