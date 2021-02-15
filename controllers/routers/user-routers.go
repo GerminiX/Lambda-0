@@ -6,7 +6,7 @@ import (
 )
 
 func SetupUserRoutes(router *mux.Router) *mux.Router {
-	router.HandleFunc("/users/register", controllers.UserRegister).Methods("POST")
-	router.HandleFunc("/users/login", controllers.UserLogin).Methods("POST")
+	router.HandleFunc("/users/register", controllers.UserRegisterHandler).Methods("POST")
+	router.HandleFunc("/users/login", controllers.UserLoginHandler).Methods("POST")
 	return router
 }
