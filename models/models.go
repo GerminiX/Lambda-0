@@ -5,7 +5,8 @@ import (
 )
 
 const (
-	UserCollection = "users"
+	UsersCollection = "users"
+	TasksCollection = "tasks"
 )
 
 type (
