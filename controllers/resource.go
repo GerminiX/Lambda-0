@@ -22,4 +22,11 @@ type (
 	}
 )
 
-
+type (
+	TaskResource struct {
+		Data models.Task `json:"data"`
+	}
+	TasksResource struct {
+		Data []models.Task `json:"data"`
+	}
+)
