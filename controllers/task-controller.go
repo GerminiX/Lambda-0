@@ -119,7 +119,25 @@ func GetTaskByUserHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-
+func DeleteTaskHandler(w http.ResponseWriter, r *http.Request)  {
+	vars := mux.Vars(r)
+	taskId, _ := primitive.ObjectIDFromHex(vars["id"])
+	context := NewContext()
+	defer context.Close()
+	taskCol := context.Collection(models.TasksCollection)
+	repo := &data.TaskRepository{taskCol}
+	err := repo.Delete(taskId)
+	if err != nil {
+		base_common.DisplayAppError(
+			w,
+			err,
+			"An unexpected error has occurred",
+			500,
+		)
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
+}
 
 func UpdateTaskHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
@@ -150,14 +168,6 @@ func UpdateTaskHandler(w http.ResponseWriter, r *http.Request) {
 		)
 		return
 	}else {
-		w.WriteHeader(http.StatusOK)
+		w.WriteHeader(http.StatusNoContent)
 	}
 }
-
-
-
-
-func DeleteTaskHandler(w http.ResponseWriter, r *http.Request) {
-
-}
-
