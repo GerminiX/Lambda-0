@@ -6,6 +6,7 @@ import (
 	base_common "github.com/lambda-0/base-common/base-common"
 	"github.com/lambda-0/base-common/data"
 	"github.com/lambda-0/base-common/models"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"gopkg.in/mgo.v2"
 	"net/http"
 )
@@ -118,9 +119,42 @@ func GetTaskByUserHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func UpdateTaskHandler(w http.ResponseWriter, r *http.Request) {
 
+
+func UpdateTaskHandler(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	taskId, _ := primitive.ObjectIDFromHex(vars["id"])
+	var dataResource TaskResource
+	err := json.NewDecoder(r.Body).Decode(&dataResource)
+	if err != nil {
+		base_common.DisplayAppError(
+			w,
+			err,
+			"Invalid task data",
+			500,
+		)
+		return
+	}
+	task := &dataResource.Data
+	task.Id = taskId
+	context := NewContext()
+	defer context.Close()
+	taskCol := context.Collection(models.TasksCollection)
+	repo := &data.TaskRepository{taskCol}
+	if err := repo.Update(task); err != nil {
+		base_common.DisplayAppError(
+			w,
+			err,
+			"An unexpected error has occurred",
+			500,
+		)
+		return
+	}else {
+		w.WriteHeader(http.StatusOK)
+	}
 }
+
+
 
 
 func DeleteTaskHandler(w http.ResponseWriter, r *http.Request) {
