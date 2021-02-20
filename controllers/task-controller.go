@@ -26,8 +26,8 @@ func CreateTaskHandler(w http.ResponseWriter, r *http.Request) {
 	context := NewContext()
 	defer context.Close()
 	taskCol := context.Collection(models.TasksCollection)
-	repo := &data.TaskRepository{taskCol}
-	repo.Create(task)
+	repo := &data.TaskRepository{Col: taskCol}
+	_ = repo.Create(task)
 	if resp, err := json.Marshal(TaskResource{Data: *task}); err != nil {
 		base_common.DisplayAppError(w,
 			err,
@@ -46,7 +46,7 @@ func GetTasksHandler(w http.ResponseWriter, r *http.Request) {
 	context := NewContext()
 	defer context.Close()
 	taskCol := context.Collection(models.TasksCollection)
-	repo := &data.TaskRepository{taskCol}
+	repo := &data.TaskRepository{Col: taskCol}
 	tasks := repo.GetAll()
 	if resp, err := json.Marshal(TasksResource{Data: tasks}); err != nil {
 		base_common.DisplayAppError(w,
@@ -64,11 +64,11 @@ func GetTasksHandler(w http.ResponseWriter, r *http.Request) {
 
 func GetTaskByIdHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	taskId := vars["id"]
+	taskId, _ := primitive.ObjectIDFromHex(vars["id"])
 	context := NewContext()
 	defer context.Close()
 	taskCol := context.Collection(models.TasksCollection)
-	repo := &data.TaskRepository{taskCol}
+	repo := &data.TaskRepository{Col: taskCol}
 	task, err := repo.GetById(taskId)
 	if err != nil {
 		if err == mgo.ErrNotFound {
@@ -125,8 +125,8 @@ func DeleteTaskHandler(w http.ResponseWriter, r *http.Request)  {
 	context := NewContext()
 	defer context.Close()
 	taskCol := context.Collection(models.TasksCollection)
-	repo := &data.TaskRepository{taskCol}
-	err := repo.Delete(taskId)
+	repo := &data.TaskRepository{Col: taskCol}
+	err := repo.Delete(&taskId)
 	if err != nil {
 		base_common.DisplayAppError(
 			w,
