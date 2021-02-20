@@ -57,3 +57,21 @@ func (rep *TaskRepository) GetAll() []models.Task {
 	return tasks
 }
 
+func (rep *TaskRepository) GetById(id *primitive.ObjectID) (task *models.Task, err error) {
+	err = rep.Col.FindId(id).One(&task)
+	if err != nil {
+		return nil, err
+	}
+	return task, nil
+}
+
+func (rep *TaskRepository) GetByUser(user string) []models.Task {
+	var tasks []models.Task
+	iter := rep.Col.Find(bson.M{"createdBy" : user}).Iter()
+	result := models.Task{}
+	for iter.Next(&result) {
+		tasks = append(tasks, result)
+	}
+	return tasks
+}
+
