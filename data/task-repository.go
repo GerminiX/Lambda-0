@@ -40,5 +40,9 @@ func (rep *TaskRepository) Update(task *models.Task) error  {
 }
 
 func (rep *TaskRepository) Delete(id *primitive.ObjectID) error {
-	
+	err := rep.Col.Remove(bson.M{"_id": id})
+	if err != nil {
+		return err
+	}
+	return nil
 }
