@@ -1,1 +1,25 @@
 package data
+
+import (
+	"github.com/lambda-0/base-common/models"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"gopkg.in/mgo.v2"
+	"time"
+)
+
+type TaskRepository struct {
+	Col *mgo.Collection
+}
+
+func (rep *TaskRepository) Create(task *models.Task) error  {
+	obj_id := primitive.NewObjectID()
+	task.Id = obj_id
+	task.CreatedOn = time.Now().UnixNano()/int64(time.Millisecond)
+	task.Status = "Created"
+	err := rep.Col.Insert(&task)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
