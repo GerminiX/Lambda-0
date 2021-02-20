@@ -4,6 +4,7 @@ import (
 	"github.com/lambda-0/base-common/models"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 	"time"
 )
 
@@ -23,3 +24,21 @@ func (rep *TaskRepository) Create(task *models.Task) error  {
 	return nil
 }
 
+func (rep *TaskRepository) Update(task *models.Task) error  {
+	err := rep.Col.Update(bson.M{"_id": task.Id},
+		bson.M{"$set": bson.M{
+			"name" : task.Name,
+			"description": task.Description,
+			"due" : task.DueOn,
+			"status" : task.Status,
+			"tags" : task.Tags,
+		}})
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (rep *TaskRepository) Delete(id *primitive.ObjectID) error {
+	
+}
