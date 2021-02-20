@@ -46,3 +46,14 @@ func (rep *TaskRepository) Delete(id *primitive.ObjectID) error {
 	}
 	return nil
 }
+
+func (rep *TaskRepository) GetAll() []models.Task {
+	var tasks []models.Task
+	iter := rep.Col.Find(nil).Iter()
+	result := models.Task{}
+	for iter.Next(&result) {
+		tasks = append(tasks, result)
+	}
+	return tasks
+}
+
