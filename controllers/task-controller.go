@@ -69,7 +69,7 @@ func GetTaskByIdHandler(w http.ResponseWriter, r *http.Request) {
 	defer context.Close()
 	taskCol := context.Collection(models.TasksCollection)
 	repo := &data.TaskRepository{Col: taskCol}
-	task, err := repo.GetById(taskId)
+	task, err := repo.GetById(&taskId)
 	if err != nil {
 		if err == mgo.ErrNotFound {
 			w.WriteHeader(http.StatusNoContent)
